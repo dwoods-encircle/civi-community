@@ -1,12 +1,12 @@
 # Civi Groups Messenger (Expo)
 
-An Expo-based mobile application that lets CiviCRM users authenticate with their instance and exchange group messages. After logging in with a CiviCRM site URL, API key, site key, and contact ID, users can browse the groups they belong to and chat with other members. Messages are saved to CiviCRM as `Activity` records linked to the relevant group.
+An Expo-based mobile application that lets CiviCRM users authenticate with their instance and exchange group messages. After logging in with a Microsoft-backed single sign-on flow and a CiviCRM site URL, API key, site key, and contact ID, users can browse the groups they belong to and chat with other members. Messages are saved to CiviCRM as `Activity` records linked to the relevant group.
 
 ## Features
 
 - Expo-managed React Native application targeting iOS, Android, and the web
 - Secure credential storage using `expo-secure-store`
-- Login screen with validation and helpful prompts
+- OAuth-enabled login screen with Microsoft Entra ID support, validation, and helpful prompts
 - Group directory populated via the CiviCRM `GroupContact` API
 - In-app chat experience backed by CiviCRM `Activity` records, including author attribution and refresh controls
 - Logout shortcut directly from the group list header
@@ -44,6 +44,26 @@ mobile/
 
    Use the on-screen prompts to launch the app on an Android emulator, iOS simulator, or the web.
 
+## Configuring Microsoft OAuth
+
+1. Register a Microsoft Entra ID (Azure AD) application and enable the `User.Read` delegated permission.
+2. Add a redirect URI matching the custom scheme in `app.json` (defaults to `civicrm://auth`).
+3. Update `mobile/app.json` with the issued client ID and (optionally) tenant ID:
+
+   ```json
+   {
+     "expo": {
+       "scheme": "civicrm",
+       "extra": {
+         "microsoftClientId": "<your-client-id>",
+         "microsoftTenantId": "common"
+       }
+     }
+   }
+   ```
+
+Once configured, the login screen will present a "Sign in with Microsoft" button that retrieves the signed-in user's profile and helps locate their contact record.
+
 ## Connecting to CiviCRM
 
 When logging in you will need:
@@ -51,7 +71,7 @@ When logging in you will need:
 - **Site URL** – the base URL of your CiviCRM installation (e.g. `https://example.org`).
 - **API key** – the API key for the CiviCRM contact that will post messages.
 - **Site key** – the instance/site key configured within your CiviCRM installation.
-- **Contact ID** – the numeric contact ID for the authenticated user.
+- **Contact ID** – the numeric contact ID for the authenticated user. After authenticating with Microsoft you can use the **Lookup** action to discover the ID by email.
 
 Once authenticated the app will:
 

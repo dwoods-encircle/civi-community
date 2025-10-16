@@ -1,8 +1,15 @@
+export type IdentityProvider = 'microsoft' | 'google' | 'apple';
+
 export interface AuthCredentials {
   siteUrl: string;
   apiKey: string;
   siteKey: string;
   contactId: string;
+  identityProvider?: IdentityProvider;
+  identityToken?: string;
+  identityTokenExpiresAt?: number;
+  identityEmail?: string;
+  identityName?: string;
 }
 
 export interface ContactSummary {

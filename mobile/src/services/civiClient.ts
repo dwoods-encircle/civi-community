@@ -117,6 +117,31 @@ export class CiviClient {
     return summary;
   }
 
+  async findContactByEmail(email: string): Promise<ContactSummary | null> {
+    const data = await this.request<{ id: string; display_name: string; email?: string }>('Contact', 'get', {
+      email,
+      options: {
+        limit: 1,
+        sort: 'contact_id ASC'
+      },
+      'return': ['display_name', 'email']
+    });
+
+    const contact = extractFirstValue(data.values);
+    if (!contact) {
+      return null;
+    }
+
+    const summary: ContactSummary = {
+      id: String(contact.id),
+      displayName: contact.display_name,
+      email: contact.email ?? undefined
+    };
+
+    this.contactCache.set(summary.id, summary);
+    return summary;
+  }
+
   async getGroupMembership(contactId: string): Promise<GroupSummary[]> {
     const data = await this.request<{
       id: string;
